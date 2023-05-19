@@ -1,0 +1,233 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>垃圾回收算法 | 摸鱼随笔</title><meta name="author" content="Jiyuan Xin"><meta name="copyright" content="Jiyuan Xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="垃圾回收垃圾回收（Garbage Collection）是一种自动化的内存管理机制，用于回收不再被程序使用的内存空间。在编程中，当创建对象或分配内存时，需要相应地释放这些对象或内存以防止内存泄漏和资源浪费。垃圾回收的主要目的是通过自动检测和回收不再被程序使用的内存，减轻开发者的负担，并提供更可靠和高效的内存管理。 垃圾回收器（Garbage Collector）是负责执行垃圾回收的程序组件。它会周">
+<meta property="og:type" content="article">
+<meta property="og:title" content="垃圾回收算法">
+<meta property="og:url" content="http://example.com/2023/05/19/gc/index.html">
+<meta property="og:site_name" content="摸鱼随笔">
+<meta property="og:description" content="垃圾回收垃圾回收（Garbage Collection）是一种自动化的内存管理机制，用于回收不再被程序使用的内存空间。在编程中，当创建对象或分配内存时，需要相应地释放这些对象或内存以防止内存泄漏和资源浪费。垃圾回收的主要目的是通过自动检测和回收不再被程序使用的内存，减轻开发者的负担，并提供更可靠和高效的内存管理。 垃圾回收器（Garbage Collector）是负责执行垃圾回收的程序组件。它会周">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png">
+<meta property="article:published_time" content="2023-05-19T14:55:16.000Z">
+<meta property="article:modified_time" content="2023-05-19T17:06:23.025Z">
+<meta property="article:author" content="Jiyuan Xin">
+<meta property="article:tag" content="基础知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2023/05/19/gc/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '垃圾回收算法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-05-20 01:06:23'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="摸鱼随笔"><img class="site-icon" src="/images/logo.png"/><span class="site-name">摸鱼随笔</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">垃圾回收算法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-05-19T14:55:16.000Z" title="发表于 2023-05-19 22:55:16">2023-05-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-05-19T17:06:23.025Z" title="更新于 2023-05-20 01:06:23">2023-05-20</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="垃圾回收算法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h1><p>垃圾回收（Garbage Collection）是一种自动化的内存管理机制，用于回收不再被程序使用的内存空间。在编程中，当创建对象或分配内存时，需要相应地释放这些对象或内存以防止内存泄漏和资源浪费。垃圾回收的主要目的是通过自动检测和回收不再被程序使用的内存，减轻开发者的负担，并提供更可靠和高效的内存管理。</p>
+<p>垃圾回收器（Garbage Collector）是负责执行垃圾回收的程序组件。它会周期性地扫描程序中的内存，找出那些不再被任何引用指向的对象，将其标记为垃圾对象，并释放它们所占用的内存空间。通过垃圾回收，可以自动回收不再需要的内存，避免内存泄漏和内存溢出问题，提高程序的稳定性和性能。</p>
+<p>垃圾回收的工作原理是基于对象的可达性。垃圾回收器通过检测对象之间的引用关系，从一组称为”根对象”的起始点开始，遍历整个对象图，标记所有与根对象可达的对象。任何未被标记的对象都被认为是不可达的，即为垃圾对象，可以被回收。</p>
+<p>垃圾回收的好处包括：</p>
+<ol>
+<li><p><strong>简化内存管理</strong>：垃圾回收机制自动处理内存的分配和释放，减轻了开发者手动管理内存的负担，简化了程序的编写和维护。</p>
+</li>
+<li><p><strong>避免内存泄漏</strong>：通过及时回收不再使用的内存，垃圾回收机制可以避免内存泄漏问题，确保内存资源的有效利用。</p>
+</li>
+<li><p><strong>提高程序的稳定性和性能</strong>：垃圾回收机制可以检测和清理不再使用的内存，减少内存碎片的产生，提高程序的内存利用率和性能。</p>
+</li>
+</ol>
+<p>尽管垃圾回收机制带来了许多好处，但也可能对程序的执行性能产生一定的影响。因此，垃圾回收算法的设计和实现需要综合考虑内存管理的效率和程序性能的平衡。</p>
+<h1 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h1><h2 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h2><p>引用计数（Reference Counting）是一种常见的垃圾回收算法，用于自动管理内存。在引用计数算法中，每个对象都会维护一个引用计数器，用于记录当前有多少个引用指向该对象。当引用计数器变为 0 时，表示该对象不再被引用，即为垃圾对象，可以被回收。</p>
+<p>下面是引用计数算法的工作原理：</p>
+<ol>
+<li><strong>引用计数的增加</strong>：当一个对象被创建、赋值给一个变量或作为参数传递给函数时，该对象的引用计数会增加。如果对象被多个引用指向，引用计数会相应地增加。</li>
+<li><strong>引用计数的减少</strong>：当一个对象的引用被删除、超出作用域或重新赋值给其他对象时，该对象的引用计数会减少。如果对象的引用计数减少到 0，表示没有任何引用指向该对象，该对象可以被回收。</li>
+<li><strong>垃圾回收</strong>：引用计数算法会定期扫描所有的对象，检查其引用计数。当发现引用计数为 0 的对象时，垃圾回收器会立即回收该对象的内存，并释放相关资源。回收对象的过程可能涉及对象的析构函数调用或资源的释放。</li>
+</ol>
+<p>引用计数算法的优点是实时性，即一旦没有引用指向对象，就可以立即回收该对象的内存。这种实时性使得内存的回收非常高效，因为垃圾对象可以被及时地释放，避免了内存占用过多的问题。</p>
+<p>然而，引用计数算法无法解决循环引用的问题。循环引用指的是两个或多个对象之间相互引用，形成了一个循环结构。在这种情况下，即使这些对象已经不再被程序使用，它们的引用计数也不会降为 0，导致内存泄漏。为了解决循环引用的问题，引用计数算法通常会与其他垃圾回收算法结合使用，如循环垃圾收集器（Cycle Garbage Collector）。</p>
+<h2 id="循环垃圾收集"><a href="#循环垃圾收集" class="headerlink" title="循环垃圾收集"></a>循环垃圾收集</h2><p>循环垃圾收集器（Cycle Garbage Collector）是用于解决循环引用（circular reference）导致的内存泄漏问题的一种垃圾回收算法。循环垃圾收集器的主要任务是检测并清除不可达的循环引用对象。</p>
+<p>以下是循环垃圾收集器的工作流程：</p>
+<ol>
+<li><p><strong>标记阶段（Mark Phase）</strong>：标记阶段从一组称为”根对象”的起始点开始，递归地遍历整个对象图，并标记所有与根对象可达的对象。这个过程可以使用深度优先搜索（DFS）或广度优先搜索（BFS）等算法来实现。</p>
+<ul>
+<li>从根对象开始，标记所有直接或间接被引用的对象。一旦对象被标记，就意味着它是可达的，即不是垃圾对象。</li>
+<li>遍历对象图，对于每个已标记的对象，将其引用的对象标记为可达。</li>
+<li>重复以上步骤，直到所有可达对象都被标记为可达。</li>
+</ul>
+<p>在标记阶段结束时，所有可达的对象都会被标记为可达（通常标记为灰色或黑色），而不可达的对象仍然保持未标记状态（通常标记为白色）。</p>
+</li>
+<li><p><strong>清除阶段（Sweep Phase）</strong>：清除阶段遍历整个堆内存，检查每个对象的标记状态。对于未被标记的对象，说明它们不可达，即为垃圾对象。清除阶段将清理和回收这些垃圾对象所占用的内存，并将其返回给可用的内存池。</p>
+<ul>
+<li>遍历堆内存的所有对象。</li>
+<li>对于未被标记的对象，将其标记为垃圾对象，并回收它们所占用的内存。</li>
+<li>对于已标记的对象，将其标记状态重置，以便下一次的垃圾回收。</li>
+</ul>
+</li>
+</ol>
+<p>循环垃圾收集器通过标记和清除阶段，识别并回收那些不再可达的循环引用对象，从而解决了引用计数算法无法处理的内存泄漏问题。通过定期运行循环垃圾收集器，程序能够及时释放不再使用的内存，提高内存的利用效率。</p>
+<p>需要注意的是，循环垃圾收集器的执行可能会对程序的性能产生一定的影响，因为标记和清除阶段需要遍历整个对象图，并进行标记和回收操作。因此，垃圾回收的策略和调度对于平衡性能和内存利用是很重要的。</p>
+<h2 id="三色垃圾收集算法"><a href="#三色垃圾收集算法" class="headerlink" title="三色垃圾收集算法"></a>三色垃圾收集算法</h2><p>循环垃圾收集器中使用的三色标记法（Three-Color Marking）是一种改进的标记阶段算法，旨在提高垃圾回收的效率和性能。与传统的标记阶段使用的两色标记法相比，三色标记法引入了额外的中间状态，使得标记过程更加高效。</p>
+<p>在传统的两色标记法中，对象的标记状态只有两种：已标记（灰色或黑色）和未标记（白色）。标记阶段从根对象开始，通过深度优先搜索或广度优先搜索遍历对象图，并将可达对象标记为已标记状态。未被标记的对象被认为是垃圾对象。</p>
+<p>而在三色标记法中，引入了一个中间状态：灰色（Gray）。对象的标记状态分为三种：已标记（黑色），未标记（白色）和中间状态（灰色）。标记阶段的工作流程如下：</p>
+<ol>
+<li><strong>初始状态</strong>：所有对象都被标记为未标记状态（白色）。</li>
+<li><strong>灰色对象队列</strong>：引入一个灰色对象队列，用于存储待处理的灰色对象。</li>
+<li><strong>标记过程</strong>：标记阶段从根对象开始，将根对象标记为灰色，并将其加入灰色对象队列。然后，循环执行以下步骤，直到灰色对象队列为空：<ul>
+<li>从灰色对象队列中取出一个灰色对象。</li>
+<li>遍历该对象引用的其他对象。</li>
+<li>将未标记的对象标记为灰色，并将其加入灰色对象队列。</li>
+<li>将当前处理的对象标记为已标记（黑色）。</li>
+</ul>
+</li>
+<li><strong>清除阶段</strong>：与传统的标记阶段相同，清除阶段遍历堆内存的所有对象。对于未被标记的对象，将其标记为垃圾对象，并回收它们所占用的内存。</li>
+</ol>
+<p>三色标记法的优势在于它通过引入中间状态（灰色），可以更快速地确定哪些对象需要进一步处理，减少了不必要的遍历，提高了标记阶段的效率。同时，它也能更好地适应并发垃圾回收的需求，因为并发情况下对象的标记状态可能发生变化。</p>
+<p>需要注意的是，三色标记法的具体实现可能会因垃圾收集器的设计和算法而有所不同。它是循环垃圾收集器中一种常用的优化技术，用于提高垃圾回收的效率和性能。</p>
+<h2 id="分代回收算法"><a href="#分代回收算法" class="headerlink" title="分代回收算法"></a>分代回收算法</h2><p>分代回收算法（Generational Garbage Collection）是一种常用的垃圾回收算法，它基于一个观察：在大多数应用程序中，对象的生命周期可以划分为不同的阶段。根据对象的生命周期，分代回收算法将内存分为几个不同的代（Generation），并对每个代应用不同的垃圾回收策略。</p>
+<p>常见的分代划分包括：</p>
+<ol>
+<li><strong>年轻代（Young Generation）</strong>：年轻代是存放新创建的对象的区域。在年轻代中，通常会使用复制算法（Copying）作为垃圾回收策略。年轻代被进一步划分为Eden区和Survivor区（通常有两个Survivor区）。新创建的对象首先分配到Eden区，当Eden区满时，触发Minor GC（Minor Garbage Collection），将仍然存活的对象复制到Survivor区，并清空Eden区。经过多次复制后，仍然存活的对象将被晋升到老年代。</li>
+<li><strong>老年代（Old Generation）</strong>：老年代是存放存活时间较长的对象的区域。在老年代中，通常会使用标记-整理算法（Mark and Compact）作为垃圾回收策略。标记-整理算法首先执行标记阶段，标记所有可达对象。然后，在清除阶段将存活的对象向内存的一端移动，并清除其它未被标记的对象。这样可以保持对象的连续布局，消除内存碎片，提高内存利用率。</li>
+<li><strong>永久代&#x2F;元空间（Permanent Generation&#x2F;Metaspace）</strong>：永久代（在Java 7及之前的版本）或元空间（在Java 8及以后的版本）用于存放类的元数据信息，如类的结构、方法、字段等。永久代采用的是固定大小的内存空间，而元空间则是使用本地内存，无需手动调整大小。垃圾回收器通常不会对永久代&#x2F;元空间进行完整的垃圾回收，而是在需要时进行一些部分回收。</li>
+</ol>
+<p>分代回收算法的核心思想是，大部分对象在短时间内就会变成垃圾，而只有少部分对象会存活更长时间。因此，通过针对不同代的垃圾回收策略，可以提高垃圾回收的效率和性能。年轻代的回收频率较高，采用了效率高但牺牲一些内存的复制算法；而老年代的回收频率较低，采用了标记-整理算法来减少内存</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Jiyuan Xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2023/05/19/gc/">http://example.com/2023/05/19/gc/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">摸鱼随笔</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/05/18/lock/" title="锁"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">锁</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/05/18/lock/" title="锁"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-18</div><div class="title">锁</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Jiyuan Xin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6"><span class="toc-number">1.</span> <span class="toc-text">垃圾回收</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">垃圾回收算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E6%B3%95"><span class="toc-number">2.1.</span> <span class="toc-text">引用计数法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AA%E7%8E%AF%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86"><span class="toc-number">2.2.</span> <span class="toc-text">循环垃圾收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E8%89%B2%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95"><span class="toc-number">2.3.</span> <span class="toc-text">三色垃圾收集算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E4%BB%A3%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95"><span class="toc-number">2.4.</span> <span class="toc-text">分代回收算法</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/05/19/gc/" title="垃圾回收算法">垃圾回收算法</a><time datetime="2023-05-19T14:55:16.000Z" title="发表于 2023-05-19 22:55:16">2023-05-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/05/18/lock/" title="锁">锁</a><time datetime="2023-05-18T15:16:54.000Z" title="发表于 2023-05-18 23:16:54">2023-05-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/05/18/about/" title="缘起">缘起</a><time datetime="2023-05-18T14:43:05.000Z" title="发表于 2023-05-18 22:43:05">2023-05-18</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Jiyuan Xin</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
